@@ -1,0 +1,13 @@
+# Flask : le framework web (routes, templates, serveur de dev)
+Flask==3.1.3
+# Flask-SQLAlchemy : intègre l'ORM SQLAlchemy proprement dans Flask
+Flask-SQLAlchemy==3.1.1
+# Flask-Login : gère la session de connexion d'un utilisateur
+Flask-Login==0.6.3
+# python-dotenv : charge les secrets (clés API) depuis le fichier .env
+#   -> on ne met JAMAIS une clé en dur dans le code (elle finirait sur Git)
+python-dotenv==1.2.2
+# requests : pour appeler les APIs externes (Steam, IGDB, Mistral)
+requests==2.34.2
+# pywebview : ouvre l'app Flask dans une fenêtre native -> le futur .exe
+pywebview==6.2.1

@@ -1,0 +1,15 @@
+.venv/
+
+# clés API Steam/IGDB/Mistral
+.env
+
+# La base SQLite : ce sont des données locales
+*.db
+
+__pycache__/
+*.pyc
+
+# Build PyInstaller (le futur .exe) : artefacts régénérables.
+build/
+dist/
+*.spec*
