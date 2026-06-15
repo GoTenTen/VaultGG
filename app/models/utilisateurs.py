@@ -21,6 +21,7 @@ class Utilisateur(db.Model, UserMixin):
     # SteamID64 (17 chiffres) -> String, car il dépasse l'entier SQL 32 bits.
     steam_id = db.Column(db.String(20), unique=True, nullable=False)
     pseudo = db.Column(db.String(100), nullable=True)       # rafraîchi à chaque connexion Steam
+    email = db.Column(db.String(255), nullable=True)  # nullable : Steam OpenID ne le fournit pas (saisi plus tard si besoin)
     avatar_url = db.Column(db.String(255), nullable=True)
     # joueur/admin par ATTRIBUT, pas héritage. Promotion admin à la main.
     role = db.Column(db.String(20), nullable=False, default="joueur")
