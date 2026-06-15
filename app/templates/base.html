@@ -10,9 +10,25 @@
 </head>
 <body class="bg-dark text-light">
     <nav class="navbar navbar-dark bg-black border-bottom border-secondary">
-    <div class="container">
+    <!-- d-flex align-items-center : brand et bloc auth sur la même ligne -->
+    <div class="container d-flex align-items-center">
         <!-- url_for : Flask fabrique l'URL depuis le NOM de la route, jamais "/" en dur -->
         <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}">VaultGG</a>
+
+        <!-- ms-auto pousse ce bloc tout à droite de la nav -->
+        <div class="ms-auto d-flex align-items-center">
+        {% if current_user.is_authenticated %}
+            <!-- avatar_url peut être NULL si Steam était injoignable à la création -->
+            {% if current_user.avatar_url %}
+            <img src="{{ current_user.avatar_url }}" alt="avatar" width="28" height="28" class="rounded-circle me-2">
+            {% endif %}
+            <span class="me-3">{{ current_user.pseudo }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Déconnexion</a>
+        {% else %}
+            <!-- lance le flux : route /login → redirect vers Steam -->
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm">Se connecter via Steam</a>
+        {% endif %}
+        </div>
     </div>
     </nav>
 

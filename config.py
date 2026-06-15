@@ -11,6 +11,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-a-changer-en-prod") # => cookies session flask
+    STEAM_API_KEY = os.getenv("STEAM_API_KEY")
 
     # URL de connexion à la base de données (SQLite par défaut)
     SQLALCHEMY_DATABASE_URI = os.getenv(
