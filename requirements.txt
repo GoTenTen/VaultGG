@@ -11,3 +11,5 @@ python-dotenv==1.2.2
 requests==2.34.2
 # pywebview : ouvre l'app Flask dans une fenêtre native -> le futur .exe
 pywebview==6.2.1
+# Fan made api pour how long to beat
+howlongtobeatpy==1.0.21

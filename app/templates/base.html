@@ -31,6 +31,13 @@
             <form method="post" action="{{ url_for('library.enrich') }}" class="d-inline">
                 <button type="submit" class="btn btn-secondary">Enrichir (IGDB)</button>
             </form>
+            <form method="post" action="{{ url_for('library.enrich_hltb') }}" class="d-inline" id="form-hltb">
+                <button type="submit" class="btn btn-secondary" id="btn-hltb">
+                    <!-- span spinner caché par défaut, révélé au submit. -->
+                    <span class="spinner-border spinner-border-sm d-none" id="spinner-hltb" role="status"></span>
+                    <span id="label-hltb">Durées (HLTB)</span>
+                </button>
+            </form>
 
             <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Déconnexion</a>
         {% else %}
@@ -58,7 +65,8 @@
     {% block content %}{% endblock %}
     </main>
 
-    <!-- JS Bootstrap : requis pour le btn-close des alertes (ton head n'a que le CSS) -->
+    <!-- JS Bootstrap : requis pour le btn-close des alertes -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

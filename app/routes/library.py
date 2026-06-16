@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from config import Config
 from app.services.steam_library import import_library
 from app.services.igdb_enrichment import enrich_jeux
+from app.services.hltb_enrichment import enrich_durees
 
 # Blueprint dédié à la bibliothèque -> garde auth.py centré sur l'authentification
 library_bp = Blueprint("library", __name__)
@@ -54,6 +55,30 @@ def enrich():
         # nb_sans_match = jeux absents d'IGDB : info utile, pas une erreur.
         flash(
             f"{nb_enrichis} jeu(x) enrichi(s), {nb_sans_match} sans correspondance IGDB.",
+            "success",
+        )
+    return redirect(url_for("main.index"))
+
+@library_bp.route("/enrich-hltb", methods=["POST"])
+@login_required
+def enrich_hltb():
+    """Lance la passe d'enrichissement HowLongToBeat (durées).
+
+    Pattern PRG comme /enrich. Passe globale (Jeu partagé entre users),
+    pas de filtrage par compte. Lente (~3-5s/jeu) : le spinner front gère
+    l'attente côté UX.
+    """
+    try:
+        nb_enrichis, nb_sans_match = enrich_durees()
+    except Exception:
+        flash("Erreur pendant l'enrichissement HowLongToBeat.", "danger")
+        return redirect(url_for("main.index"))
+
+    if nb_enrichis == 0 and nb_sans_match == 0:
+        flash("Aucune durée à récupérer.", "info")
+    else:
+        flash(
+            f"{nb_enrichis} durée(s) récupérée(s), {nb_sans_match} sans correspondance HLTB.",
             "success",
         )
     return redirect(url_for("main.index"))
