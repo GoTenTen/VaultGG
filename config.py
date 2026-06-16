@@ -13,6 +13,9 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-a-changer-en-prod") # => cookies session flask
     STEAM_API_KEY = os.getenv("STEAM_API_KEY")
 
+    TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
+    TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET")
+
     # URL de connexion à la base de données (SQLite par défaut)
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL", "sqlite:///" + os.path.join(BASE_DIR, "vaultgg.db")

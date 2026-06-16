@@ -2,6 +2,7 @@ from flask import Blueprint, redirect, url_for, flash
 from flask_login import login_required, current_user
 from config import Config
 from app.services.steam_library import import_library
+from app.services.igdb_enrichment import enrich_jeux
 
 # Blueprint dédié à la bibliothèque -> garde auth.py centré sur l'authentification
 library_bp = Blueprint("library", __name__)
@@ -23,4 +24,36 @@ def import_steam():
         flash("Échec de l'import Steam, réessaie plus tard.", "danger")
 
     # POST -> redirect (pattern PRG) : évite le ré-import si l'user rafraîchit la page
+    return redirect(url_for("main.index"))
+
+@library_bp.route("/enrich", methods=["POST"])
+@login_required
+def enrich():
+    """Lance la passe d'enrichissement IGDB sur les Jeu non enrichis.
+
+    Pattern PRG (Post/Redirect/Get) : on traite en POST puis on redirige,
+    pour éviter le ré-enrichissement si l'utilisateur rafraîchit la page.
+
+    Pas de filtrage par utilisateur : Jeu est partagé entre tous les users,
+    enrichir un jeu profite à tous. La passe est globale, pas par compte.
+    """
+    ''' try:
+        nb_enrichis, nb_sans_match = enrich_jeux()
+    except Exception:
+        # Flash générique : on n'expose pas l'erreur brute (token KO, IGDB
+        # down, quota...) à l'utilisateur. Détail à logger en vrai en prod.
+        flash("Erreur pendant l'enrichissement IGDB.", "danger")
+        return redirect(url_for("main.index"))'''
+    
+    nb_enrichis, nb_sans_match = enrich_jeux()  # DEBUG : try/except retiré pour voir l'erreur brute
+
+    if nb_enrichis == 0 and nb_sans_match == 0:
+        # Aucun jeu à traiter : tout est déjà enrichi (ou biblio vide).
+        flash("Aucun jeu à enrichir.", "info")
+    else:
+        # nb_sans_match = jeux absents d'IGDB : info utile, pas une erreur.
+        flash(
+            f"{nb_enrichis} jeu(x) enrichi(s), {nb_sans_match} sans correspondance IGDB.",
+            "success",
+        )
     return redirect(url_for("main.index"))
