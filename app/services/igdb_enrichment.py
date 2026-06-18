@@ -116,3 +116,47 @@ def enrich_jeux():
 
     db.session.commit()  # un seul commit en fin de passe = atomique
     return nb_enrichis, nb_sans_match
+
+def search_igdb_by_name(nom):
+    """Recherche un jeu IGDB par NOM (et non par app_id Steam).
+
+    Pourquoi : les recos "découverte" de Mistral sont des titres HORS biblio,
+    donc sans app_id Steam connu. On le retrouve via IGDB pour pouvoir réutiliser
+    _get_or_create_jeu, qui exige app_id_steam (NOT NULL en base).
+
+    Renvoie {"appid": int, "name": str}, ou None si aucun match avec lien Steam
+    -> l'appelant filtre alors la reco (on ne crée jamais un Jeu sans app_id).
+    """
+    client_id = current_app.config["TWITCH_CLIENT_ID"]
+    client_secret = current_app.config["TWITCH_CLIENT_SECRET"]
+    token = get_igdb_token(client_id, client_secret)
+
+    # 'search' trie par pertinence ; le 'where' ne garde que les jeux ayant un
+    # lien Steam : seul cas où l'on récupère un app_id exploitable en aval.
+    safe = nom.replace('"', "")  # un " non échappé casserait la requête APIcalypse
+    body = (
+        f'search "{safe}"; '
+        f"fields name, external_games.external_game_source, external_games.uid; "
+        f"where external_games.external_game_source = {STEAM_SOURCE}; "
+        f"limit 5;"
+    )
+    resp = requests.post(
+        IGDB_URL,
+        headers={"Client-ID": client_id, "Authorization": f"Bearer {token}"},
+        data=body,
+        timeout=15,
+    )
+    resp.raise_for_status()
+    resultats = resp.json()
+    if not resultats:
+        return None
+
+    jeu_data = resultats[0]  # le plus pertinent
+    # Même piège que le batch : IGDB renvoie TOUS les external_games -> on isole Steam.
+    for ext in jeu_data.get("external_games", []):
+        if ext.get("external_game_source") == STEAM_SOURCE:
+            try:
+                return {"appid": int(ext["uid"]), "name": jeu_data["name"]}
+            except (ValueError, KeyError):
+                return None  # uid Steam non numérique/absent -> inexploitable
+    return None

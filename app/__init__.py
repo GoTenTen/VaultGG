@@ -36,6 +36,9 @@ def create_app(config_class=Config):
     from app.routes.library import library_bp
     app.register_blueprint(library_bp)
 
+    from app.routes.recommandation import recommandation_bp
+    app.register_blueprint(recommandation_bp)
+
     # Retourne l'application configurée et prête à fonctionner
     return app
 

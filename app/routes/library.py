@@ -4,6 +4,9 @@ from config import Config
 from app.services.steam_library import import_library
 from app.services.igdb_enrichment import enrich_jeux
 from app.services.hltb_enrichment import enrich_durees
+from app.models import Bibliotheque, Jeu
+from app.extensions import db 
+from flask import render_template 
 
 # Blueprint dédié à la bibliothèque -> garde auth.py centré sur l'authentification
 library_bp = Blueprint("library", __name__)
@@ -82,3 +85,17 @@ def enrich_hltb():
             "success",
         )
     return redirect(url_for("main.index"))
+
+@library_bp.route("/bibliotheque")  # GET : simple lecture -> pas de POST/PRG ici
+@login_required                     # current_user.id obligatoire pour filtrer SA biblio
+def bibliotheque():
+    # Bibliotheque n'a PAS de relationship 'jeu' (que des FK) -> join explicite.
+    # On renvoie des tuples (Bibliotheque, Jeu) : la ligne porte temps_de_jeu, le Jeu le reste.
+    lignes = (
+        db.session.query(Bibliotheque, Jeu)
+        .join(Jeu, Bibliotheque.jeu_id == Jeu.id)
+        .filter(Bibliotheque.utilisateur_id == current_user.id)
+        .order_by(Bibliotheque.temps_de_jeu.desc())  # les plus joués en premier
+        .all()
+    )
+    return render_template("bibliotheque.html", lignes=lignes)

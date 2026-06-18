@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Recommandations · VaultGG{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0">Mes recommandations</h1>
+    <!-- POST + PRG : la génération écrit en base (appel Mistral + IGDB) -->
+    <form method="post" action="{{ url_for('recommandation.generer') }}" id="form-reco">
+        <button type="submit" class="btn btn-primary" id="btn-reco">
+            <span class="spinner-border spinner-border-sm d-none" id="spinner-reco" role="status"></span>
+            <span id="label-reco">Générer (Mistral)</span>
+        </button>
+    </form>
+</div>
+
+{% if not items %}
+<p class="text-secondary">Aucune recommandation pour l'instant. Lance une génération.</p>
+{% else %}
+<div class="row g-3">
+    {% for item in items %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card bg-black border-secondary h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-start justify-content-between">
+                    <h2 class="h5 card-title">{{ item.jeu.nom }}</h2>
+                    {# tag dérivé côté route : couleur selon découverte/oubli #}
+                    {% if item.tag == "oubli" %}
+                    <span class="badge bg-warning text-dark">Oubli</span>
+                    {% else %}
+                    <span class="badge bg-info text-dark">Découverte</span>
+                    {% endif %}
+                </div>
+
+                {# score_ia nullable -> garde anti-None avant le formatage #}
+                {% if item.reco.score_ia is not none %}
+                <p class="small text-secondary mb-2">
+                    Confiance : {{ (item.reco.score_ia * 100) | round | int }} %
+                </p>
+                {% endif %}
+
+                <p class="card-text flex-grow-1">{{ item.reco.justification }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

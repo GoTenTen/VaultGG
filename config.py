@@ -16,6 +16,8 @@ class Config:
     TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
     TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET")
 
+    MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")  # moteur de mistral-small
+
     # URL de connexion à la base de données (SQLite par défaut)
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL", "sqlite:///" + os.path.join(BASE_DIR, "vaultgg.db")

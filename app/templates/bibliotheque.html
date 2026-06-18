@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Ma bibliothèque — VaultGG{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4">Ma bibliothèque</h1>
+
+{# lignes vide = biblio jamais importée OU profil Steam privé : on guide l'user #}
+{% if not lignes %}
+    <p class="text-secondary">Aucun jeu. Clique sur « Importer ma biblio ».</p>
+{% else %}
+    <p class="text-secondary mb-3">{{ lignes|length }} jeux</p>
+    <div class="row g-3">
+    {# unpacking du tuple (Bibliotheque, Jeu) renvoyé par le join #}
+    {% for biblio, jeu in lignes %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card bg-black text-light border-secondary h-100">  {# h-100 : cartes d'égale hauteur sur une ligne #}
+        <div class="card-body">
+            <h2 class="h6 card-title">{{ jeu.nom }}</h2>
+
+            {# temps_de_jeu en MINUTES (Steam) -> heures pour l'affichage. round(1) sinon 51.6166...h #}
+            <p class="small mb-1 text-secondary">
+            {{ (biblio.temps_de_jeu / 60) | round(1) }} h jouées
+            </p>
+
+            {# note_igbd nullable : NULL tant que le jeu n'a pas été enrichi IGDB #}
+            {% if jeu.note_igbd %}
+            <p class="small mb-1">Note IGDB : {{ jeu.note_igbd | round }} / 100</p>
+            {% endif %}
+
+            {# duree_hltb nullable aussi (HLTB mis de côté pour la démo) #}
+            {% if jeu.duree_hltb %}
+            <p class="small mb-1 text-secondary">~{{ jeu.duree_hltb | round }} h pour finir</p>
+            {% endif %}
+
+            {# jeu.genres = relationship n-n : liste de Genre, peut être vide #}
+            {% if jeu.genres %}
+            <div class="mt-2">
+                {% for g in jeu.genres %}
+                <span class="badge text-bg-secondary">{{ g.libelle }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
